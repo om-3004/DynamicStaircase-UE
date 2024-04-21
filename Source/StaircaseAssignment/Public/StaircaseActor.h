@@ -6,6 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "StaircaseActor.generated.h"
 
+UENUM()
+enum typeOfStairs {
+	ClosedStairs UMETA(DisplayName = "Closed Stairs"),
+	OpenStairs UMETA(DisplayName = "Open Stairs"),
+	BoxStairs UMETA(DisplayName = "Box Stairs")
+};
+
 UCLASS()
 class STAIRCASEASSIGNMENT_API AStaircaseActor : public AActor
 {
@@ -19,13 +26,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifyStaircase")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta = (ClampMin = "1", UIMIN = "1"))
 	int noOfStairs;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifyStaircase")
 	UStaticMesh* stairsMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifyStaircase")
-	FVector Dimensions;
+	FVector StairsDimensions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase")
 	bool Railing;
@@ -33,14 +40,41 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta=(EditCondition="Railing"))
 	UStaticMesh* railingMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase")
+	TEnumAsByte<typeOfStairs> stairsType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta=(EditCondition="stairsType==typeOfStairs::OpenStairs"))
+	FVector openStairsSpacing;
+
+	UPROPERTY()
 	USceneComponent* defaultSceneRoot;
+
+	UPROPERTY()
 	FString meshName;
+
+	UPROPERTY()
 	TArray<UStaticMeshComponent*> stairsMeshComponentsArray;
+
+	UPROPERTY()
 	TArray<UStaticMeshComponent*> leftRailingMeshComponentsArray;
+
+	UPROPERTY()
 	TArray<UStaticMeshComponent*> rightRailingMeshComponentsArray;
+	
+	UPROPERTY()
+	TArray<UStaticMeshComponent*> leftRailingUpperArray;
+
+	UPROPERTY()
+	TArray<UStaticMeshComponent*> rightRailingUpperArray;
+
+	UPROPERTY()
 	FVector Location;
+
+	UPROPERTY()
 	FVector railingDimensions;
 
+	UPROPERTY()
+	FVector meshDimensions;
 
 public:	
 	// Called every frame
