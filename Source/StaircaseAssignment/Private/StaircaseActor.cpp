@@ -96,18 +96,16 @@ void AStaircaseActor::OnConstruction(const FTransform& Transform) {
 		stairStaticMeshComponent->SetStaticMesh(stairsMesh);
 
 		if (stairsType == typeOfStairs::ClosedStairs) {
-			stairStaticMeshComponent->SetRelativeLocation(FVector(StairsDimensions.X * meshDimensions.X * i, 0, StairsDimensions.Z * meshDimensions.Z * i));
 			stairStaticMeshComponent->SetRelativeScale3D(StairsDimensions);
+			stairStaticMeshComponent->SetRelativeLocation(FVector(StairsDimensions.X * meshDimensions.X * i, 0, StairsDimensions.Z * meshDimensions.Z * i));
 		}
 		else if (stairsType == typeOfStairs::OpenStairs) {
-			stairStaticMeshComponent->SetRelativeLocation(FVector(StairsDimensions.X * meshDimensions.X * i * openStairsSpacing.X, 0, StairsDimensions.Z * meshDimensions.Z * i * openStairsSpacing.Z));
 			stairStaticMeshComponent->SetRelativeScale3D(StairsDimensions);
+			stairStaticMeshComponent->SetRelativeLocation(FVector(StairsDimensions.X * meshDimensions.X * i * openStairsSpacing.X, 0, StairsDimensions.Z * meshDimensions.Z * i * openStairsSpacing.Z));
 		}
 		else if (stairsType == typeOfStairs::BoxStairs) {
-			stairStaticMeshComponent->SetRelativeLocation(FVector(StairsDimensions.X * meshDimensions.X * i, 0, StairsDimensions.Z * i));
-			//UE_LOG(LogTemp, Warning, TEXT("BOXSTAIRS Location: %s"), *stairStaticMeshComponent->GetRelativeLocation().ToString());
 			stairStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X, StairsDimensions.Y, StairsDimensions.Z * (i+1)));
-			//UE_LOG(LogTemp, Warning, TEXT("BOXSTAIRS Scale: %s"), *stairStaticMeshComponent->GetRelativeScale3D().ToString());
+			stairStaticMeshComponent->SetRelativeLocation(FVector(StairsDimensions.X * meshDimensions.X * i, 0, ((StairsDimensions.Z * (i) * meshDimensions.Z) / 2)));
 		}
 
 		stairsMeshComponentsArray.Add(stairStaticMeshComponent);
@@ -124,10 +122,14 @@ void AStaircaseActor::OnConstruction(const FTransform& Transform) {
 
 			if (stairsType == typeOfStairs::BoxStairs) {
 				leftRailingStaticMeshComponent->SetRelativeScale3D(FVector(railingDimensions.X, railingDimensions.Y, railingDimensions.Z / (i+1)));
+				leftRailingStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1, 
+					(((((meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) / 2) + ((meshDimensions.Z * StairsDimensions.Z * (i+1)) / 2)) / (meshDimensions.Z * StairsDimensions.Z * (i+1))) * 100)));
+				UE_LOG(LogTemp, Warning, TEXT("Location: %s"), *leftRailingStaticMeshComponent->GetRelativeLocation().ToString());
 			}
 			else {
 				leftRailingStaticMeshComponent->SetRelativeScale3D(railingDimensions);
-				leftRailingStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1, (((((meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) / 2) + ((meshDimensions.Z * StairsDimensions.Z) / 2)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+				leftRailingStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1, 
+					(((((meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) / 2) + ((meshDimensions.Z * StairsDimensions.Z) / 2)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
 			}		
 
 			leftRailingMeshComponentsArray.Add(leftRailingStaticMeshComponent);
@@ -143,6 +145,8 @@ void AStaircaseActor::OnConstruction(const FTransform& Transform) {
 
 			if (stairsType == typeOfStairs::BoxStairs) {
 				rightRailingStaticMeshComponent->SetRelativeScale3D(FVector(railingDimensions.X, railingDimensions.Y, railingDimensions.Z / (i + 1)));
+				rightRailingStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3,
+					(((((meshDimensions.Z* StairsDimensions.Z* railingDimensions.Z) / 2) + ((meshDimensions.Z * StairsDimensions.Z * (i + 1)) / 2)) / (meshDimensions.Z * StairsDimensions.Z * (i + 1))) * 100)));
 			}
 			else {
 				rightRailingStaticMeshComponent->SetRelativeScale3D(railingDimensions);
@@ -157,6 +161,7 @@ void AStaircaseActor::OnConstruction(const FTransform& Transform) {
 			rightRailingMeshComponentsArray.Add(rightRailingStaticMeshComponent);
 			rightRailingStaticMeshComponent->RegisterComponentWithWorld(GetWorld());
 
+
 			// UPPER TITLED PART - LEFT
 			meshName = "leftRailingUpper " + FString::FromInt(i);
 			UStaticMeshComponent* leftRailingUpperStaticMeshComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), *meshName);
@@ -164,15 +169,48 @@ void AStaircaseActor::OnConstruction(const FTransform& Transform) {
 			leftRailingUpperStaticMeshComponent->SetupAttachment(stairStaticMeshComponent); // leftRailingStaticMeshComponent -> relative.
 			leftRailingUpperStaticMeshComponent->SetStaticMesh(railingMesh); // railingMesh -> change
 
-			leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X * 1.05, railingDimensions.Y, 0.15));
+			if (stairsType == typeOfStairs::BoxStairs) {
 
-			leftRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1, 
-				(((((meshDimensions.Z * StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+				double tanInverse = atan((StairsDimensions.Z * meshDimensions.Z) / (StairsDimensions.X * meshDimensions.X));
+				UE_LOG(LogTemp, Warning, TEXT("tanInverse: %lg"), tanInverse);
+
+				double Cos = cos(tanInverse);
+				UE_LOG(LogTemp, Warning, TEXT("Cos: %lg"), Cos);
+
+				double val = 100 / Cos;
+				UE_LOG(LogTemp, Warning, TEXT("Val: %lg"), val);
+
+				//leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X + (StairsDimensions.X * 0.05), railingDimensions.Y, 0.15 / (i + 1)));
+				leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(1.04403, railingDimensions.Y, 0.15 / (i + 1)));  // val / (StairsDimension.X * meshDimension.X) = 104.403/(1*100) = 1.04403
+
+				leftRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1,
+					(((((0.15 * meshDimensions.Z* StairsDimensions.Z) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15 * (i+1))) / (meshDimensions.Z * StairsDimensions.Z * (i + 1))) * 100)));
+			}
+			else if (stairsType == typeOfStairs::ClosedStairs) {
+				leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(1.04403, railingDimensions.Y, 0.15 / (i + 1)));  // val / (StairsDimension.X * meshDimension.X) = 104.403/(1*100) = 1.04403
+
+				leftRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1,
+					(((((meshDimensions.Z * StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+			}
+			else { // OpenStairs
+				if (StairsDimensions.X >= 1) {
+					leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X * 2, railingDimensions.Y, 0.15));
+				}
+				else {
+					leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X / 0.5, railingDimensions.Y, 0.15));  // >= 0.7
+				}
+
+				//leftRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X * 1.05, railingDimensions.Y, 0.15));
+
+				leftRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3 * -1,
+					(((((meshDimensions.Z * StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+			}
 
 			leftRailingUpperStaticMeshComponent->SetRelativeRotation(FRotator((atan((StairsDimensions.Z * meshDimensions.Z)/(StairsDimensions.X * meshDimensions.X)) * 180) / 3.1415, 0.0f, 0.0f));
 
 			leftRailingUpperArray.Add(leftRailingUpperStaticMeshComponent);
 			leftRailingUpperStaticMeshComponent->RegisterComponentWithWorld(GetWorld());
+
 
 			// UPPER TITLED PART - RIGHT
 			meshName = "rightRailingUpper " + FString::FromInt(i);
@@ -181,12 +219,79 @@ void AStaircaseActor::OnConstruction(const FTransform& Transform) {
 			rightRailingUpperStaticMeshComponent->SetupAttachment(stairStaticMeshComponent); // leftRailingStaticMeshComponent -> relative.
 			rightRailingUpperStaticMeshComponent->SetStaticMesh(railingMesh); // railingMesh -> change
 
-			rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X * 1.05, railingDimensions.Y, 0.15));
+			if (stairsType == typeOfStairs::BoxStairs) {
 
-			rightRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3,
-				(((((meshDimensions.Z* StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+				double tanInverse = atan((StairsDimensions.Z * meshDimensions.Z) / (StairsDimensions.X * meshDimensions.X));
+				UE_LOG(LogTemp, Warning, TEXT("tanInverse: %lg"), tanInverse);
 
-			rightRailingUpperStaticMeshComponent->SetRelativeRotation(FRotator((atan((StairsDimensions.Z* meshDimensions.Z) / (StairsDimensions.X * meshDimensions.X)) * 180) / 3.1415, 0.0f, 0.0f));
+				double Cos = cos(tanInverse);
+				UE_LOG(LogTemp, Warning, TEXT("Cos: %lg"), Cos);
+
+				double val = 100 / Cos;
+				UE_LOG(LogTemp, Warning, TEXT("Val: %lg"), val);
+
+				//rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(diff, railingDimensions.Y, 0.15 / (i + 1)));
+				rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(1.04403, railingDimensions.Y, 0.15 / (i + 1)));  // val / (StairsDimension.X * meshDimension.X) = 104.403/(1*100) = 1.04403
+				UE_LOG(LogTemp, Warning, TEXT("Scale: %s"), *rightRailingUpperStaticMeshComponent->GetRelativeScale3D().ToString());
+
+				rightRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3,
+					(((((0.15 * meshDimensions.Z * StairsDimensions.Z) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15 * (i + 1))) / (meshDimensions.Z * StairsDimensions.Z * (i + 1))) * 100)));
+			}
+			else if (stairsType == typeOfStairs::ClosedStairs) {
+				rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(1.04403, railingDimensions.Y, 0.15 / (i + 1)));  // val / (StairsDimension.X * meshDimension.X) = 104.403/(1*100) = 1.04403
+
+				rightRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3,
+					(((((meshDimensions.Z * StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+			}
+			else if (stairsType == typeOfStairs::OpenStairs) {
+				double tanInverse1 = atan((StairsDimensions.Z * meshDimensions.Z) / (StairsDimensions.X * meshDimensions.X));
+				UE_LOG(LogTemp, Warning, TEXT("tanInverse: %lg"), tanInverse1);
+
+				double Cos1 = cos(tanInverse1);
+				UE_LOG(LogTemp, Warning, TEXT("Cos: %lg"), Cos1);
+
+				double val1 = 100 / Cos1;
+				UE_LOG(LogTemp, Warning, TEXT("Val1: %lg"), val1);
+
+				double x = (StairsDimensions.X * meshDimensions.X * openStairsSpacing.X) - (StairsDimensions.X * meshDimensions.X);
+				double z = (StairsDimensions.Z * meshDimensions.Z * openStairsSpacing.Z) - (StairsDimensions.Z * meshDimensions.Z);
+
+				double tanInverse2 = atan(z / x);
+				double Cos2 = cos(tanInverse2);
+				double val2 = 20 / Cos2;
+				UE_LOG(LogTemp, Warning, TEXT("Val2: %lg"), val2);
+
+				//rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X * 2, railingDimensions.Y, 0.15));
+				rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(1.04403 + (val2/100), railingDimensions.Y, 0.15));
+				rightRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3,
+						(((((meshDimensions.Z * StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+			}
+			else {
+
+				double tanInverse1 = atan((StairsDimensions.Z * meshDimensions.Z) / (StairsDimensions.X * meshDimensions.X));
+				UE_LOG(LogTemp, Warning, TEXT("tanInverse: %lg"), tanInverse1);
+
+				double Cos1 = cos(tanInverse1);
+				UE_LOG(LogTemp, Warning, TEXT("Cos: %lg"), Cos1);
+
+				double val1 = 100 / Cos1;
+				UE_LOG(LogTemp, Warning, TEXT("Val: %lg"), val1);
+
+				//double tanInverse2 = atan(() / ());
+
+				rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(20+1.04403, railingDimensions.Y, 0.15));
+				//if (StairsDimensions.X >= 1) {
+				//	rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X * 2, railingDimensions.Y, 0.15));
+				//}
+				//else {
+				//	rightRailingUpperStaticMeshComponent->SetRelativeScale3D(FVector(StairsDimensions.X / 0.5, railingDimensions.Y, 0.15));  // >= 0.7
+				//}
+
+				rightRailingUpperStaticMeshComponent->SetRelativeLocation(FVector(0, meshDimensions.Y / 2.3,
+					(((((meshDimensions.Z * StairsDimensions.Z * 0.15) / 2) + (meshDimensions.Z * StairsDimensions.Z * railingDimensions.Z) + (meshDimensions.Z * 0.15)) / (meshDimensions.Z * StairsDimensions.Z)) * 100)));
+			}
+
+			rightRailingUpperStaticMeshComponent->SetRelativeRotation(FRotator((atan((StairsDimensions.Z * meshDimensions.Z) / (StairsDimensions.X * meshDimensions.X)) * 180) / 3.1415, 0.0f, 0.0f));
 
 			rightRailingUpperArray.Add(rightRailingUpperStaticMeshComponent);
 			rightRailingUpperStaticMeshComponent->RegisterComponentWithWorld(GetWorld());
