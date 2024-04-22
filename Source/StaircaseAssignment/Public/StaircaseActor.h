@@ -8,8 +8,8 @@
 
 UENUM()
 enum typeOfStairs {
-	ClosedStairs UMETA(DisplayName = "Closed Stairs"),
 	OpenStairs UMETA(DisplayName = "Open Stairs"),
+	ClosedStairs UMETA(DisplayName = "Closed Stairs"),
 	BoxStairs UMETA(DisplayName = "Box Stairs")
 };
 
@@ -25,25 +25,28 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase")
+	TEnumAsByte<typeOfStairs> stairsType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta = (ClampMin = "1", UIMIN = "1"))
 	int noOfStairs;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifyStaircase")
 	UStaticMesh* stairsMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifyStaircase")
 	FVector StairsDimensions;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing")
 	bool Railing;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta=(EditCondition="Railing"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing", meta=(EditCondition="Railing"))
 	UStaticMesh* railingMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase")
-	TEnumAsByte<typeOfStairs> stairsType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing", meta = (EditCondition = "Railing"))
+	UStaticMesh* railingHandleMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta=(EditCondition="stairsType==typeOfStairs::OpenStairs"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing", meta=(EditCondition="stairsType==typeOfStairs::OpenStairs", ClampMin="1.01", UIMin="1.01"))
 	FVector openStairsSpacing;
 
 	UPROPERTY()
@@ -75,6 +78,15 @@ protected:
 
 	UPROPERTY()
 	FVector meshDimensions;
+	
+	UPROPERTY()
+	FVector railingMeshDimensions;
+	
+	UPROPERTY()
+	FVector railingHandlemeshDimensions;
+
+	UFUNCTION()
+	void destroyComponents();
 
 public:	
 	// Called every frame
