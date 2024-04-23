@@ -7,7 +7,7 @@
 #include "StaircaseActor.generated.h"
 
 UENUM()
-enum EtypeOfStairs {
+enum EtypeOfStairs: uint8 {
 	OpenStairs UMETA(DisplayName = "Open Stairs"),
 	ClosedStairs UMETA(DisplayName = "Closed Stairs"),
 	BoxStairs UMETA(DisplayName = "Box Stairs")
@@ -62,16 +62,16 @@ protected:
 	TArray<UStaticMeshComponent*> stairsMeshComponentsArray;
 
 	UPROPERTY()
-	TArray<UStaticMeshComponent*> leftRailingMeshComponentsArray;
+	TArray<UStaticMeshComponent*> leftRailingPillarMeshComponentsArray;
 
 	UPROPERTY()
-	TArray<UStaticMeshComponent*> rightRailingMeshComponentsArray;
+	TArray<UStaticMeshComponent*> rightRailingPillarMeshComponentsArray;
 	
 	UPROPERTY()
-	TArray<UStaticMeshComponent*> leftRailingUpperArray;
+	TArray<UStaticMeshComponent*> leftRailingHandleMeshComponentsArray;
 
 	UPROPERTY()
-	TArray<UStaticMeshComponent*> rightRailingUpperArray;
+	TArray<UStaticMeshComponent*> rightRailingHandleMeshComponentsArray;
 
 	UPROPERTY()
 	FVector Location;
@@ -80,7 +80,7 @@ protected:
 	FVector railingDimensions;
 
 	UPROPERTY()
-	FVector meshDimensions;
+	FVector stairMeshDimensions;
 	
 	UPROPERTY()
 	FVector railingMeshDimensions;
