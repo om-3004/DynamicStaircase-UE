@@ -7,7 +7,7 @@
 #include "StaircaseActor.generated.h"
 
 UENUM()
-enum typeOfStairs {
+enum EtypeOfStairs {
 	OpenStairs UMETA(DisplayName = "Open Stairs"),
 	ClosedStairs UMETA(DisplayName = "Closed Stairs"),
 	BoxStairs UMETA(DisplayName = "Box Stairs")
@@ -26,7 +26,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase")
-	TEnumAsByte<typeOfStairs> stairsType;
+	TEnumAsByte<EtypeOfStairs> stairsType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta = (ClampMin = "1", UIMIN = "1"))
 	int noOfStairs;
@@ -37,6 +37,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="ModifyStaircase")
 	FVector StairsDimensions;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta = (EditCondition = "stairsType==EtypeOfStairs::OpenStairs", ClampMin = "1.01", UIMin = "1.01"))
+	float HorizontalSpacing;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyStaircase", meta = (EditCondition = "stairsType==EtypeOfStairs::OpenStairs", ClampMin = "1.01", UIMin = "1.01"))
+	float VerticalSpacing;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing")
 	bool Railing;
 
@@ -45,9 +51,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing", meta = (EditCondition = "Railing"))
 	UStaticMesh* railingHandleMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ModifyRailing", meta=(EditCondition="stairsType==typeOfStairs::OpenStairs", ClampMin="1.01", UIMin="1.01"))
-	FVector openStairsSpacing;
 
 	UPROPERTY()
 	USceneComponent* defaultSceneRoot;
@@ -87,6 +90,9 @@ protected:
 
 	UFUNCTION()
 	void destroyComponents();
+
+	UFUNCTION()
+	void setMeshDimensions();
 
 public:	
 	// Called every frame
